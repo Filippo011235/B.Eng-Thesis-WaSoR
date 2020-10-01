@@ -8,13 +8,37 @@ import matplotlib.pyplot as plt
 
 from keras.models import Sequential
 from keras.layers.core import Activation, Flatten, Dense
-from keras.layers.convolutional import Convolution2D, AveragePooling2D
+from keras.layers.convolutional import Convolution2D, AveragePooling2D, MaxPooling2D
 from keras.optimizers import Adam
 from keras.utils import np_utils
 
 
+#%%
 TrainingDataPath = "./PostProcessing Data/Training"
 TestDataPath = "./PostProcessing Data/Test" 
+
+# CNN preparation
+
+# done 
+NbrOfEpochs = 10 
+ImgColRow = 120
+ImgChannels = 3
+NbrOfClasses = 4
+NbrOfConvFilters = 64
+KernelSize_5 = 5
+KernelSize_9 = 9
+
+# what about learning coefficient?
+# Learning was carried out for a variable value of learning coefficient, 
+# starting from 0.001 and decreasing every subsequent 4 epoch. 
+# 1064 iterations for one epoch were considered.
+
+# not sure
+PoolSize = 2
+# BatchSize = 1000
+BatchSize = 1 # temp
+
+
 
 def Checklist():
     """ Basic checkup is everything alright with libraries etc. """  
@@ -36,7 +60,7 @@ def ExtractLabel(ImgName):
         '6': 3, # PS
     }[PlasticType]
 
-def PrepareDataset(TestOrTrainingPath):
+def PrepareDataset(TestOrTrainingPath, ImgSize):
     ImgList = listdir(TestOrTrainingPath)
     ImgNbr = len(ImgList)
 
@@ -47,7 +71,6 @@ def PrepareDataset(TestOrTrainingPath):
     #     np.append(ImgMatrix, ImgArray)
     ImgMatrix = np.array([np.array(Image.open(TestOrTrainingPath + "/" + Img)).flatten()
                     for Img in ImgList], 'f')
-    
 
     # Create a np array containing labels of the data
     ImgLabels = np.ones((ImgNbr,), dtype = int)
@@ -55,7 +78,15 @@ def PrepareDataset(TestOrTrainingPath):
         ImgLabels[i] = ExtractLabel(ImgList[i])
     
     FinalData, FinalLabels = shuffle(ImgMatrix, ImgLabels, random_state = 2)
-    ReturnData = [FinalData, FinalLabels]
+    
+    FinalData = FinalData.reshape(FinalData.shape[0], ImgSize, ImgSize, 3)
+    FinalData = FinalData.astype('float32')
+    FinalData /= 255
+
+    # Convert class vectors to binary class matrices
+    FinalLabels = np_utils.to_categorical(np.array(FinalLabels), NbrOfClasses)
+
+    # ReturnData = [FinalData, FinalLabels]
     
     # Checkup
     # print("##########################################")
@@ -63,76 +94,57 @@ def PrepareDataset(TestOrTrainingPath):
     # kokos = ImgMatrix[1].reshape(120,120, 3)
     # plt.imshow(kokos)
     # plt.show()
-    print(ReturnData[0].shape)
-    print(ReturnData[1].shape)
+    # print(FinalData.shape)
+    # print(FinalLabels.shape)
 
-    return (ReturnData[0], ReturnData[1])
+    return [FinalData, FinalLabels]
     
 
-#%%
-# CNN preparation
-
-# done 
-NbrOfEpochs = 10 
-ImgRow, ImgCol = 120, 120
-ImgChannels = 3
-NbrOfClasses = 4
-NbrOfConvFilters = 64
-KernelSize_5 = 5
-KernelSize_9 = 9
-
-# what about learning coefficient?
-# Learning was carried out for a variable value of learning coefficient, 
-# starting from 0.001 and decreasing every subsequent 4 epoch. 
-# 1064 iterations for one epoch were considered.
-
-# not sure
-PoolSize = 2
-# BatchSize = 1000
-BatchSize = 1 # temp
 
 #%%
-
-
-
 ###########################################
 if __name__ == "__main__":
-    # (X_training, Y_training) = PrepareDataset(TrainingDataPath)
-    # (X_test, Y_test) = PrepareDataset(TestDataPath)
-    # X_test = np.array(X_test)
-    # X_test = X_test.reshape(X_test[0], 3, ImgRow, ImgCol)
-    # X_test = X_test.astype('float32')
-    # X_test /= 255
+    print("Training: ")
+    X_train, Y_train = PrepareDataset(TrainingDataPath, ImgColRow)
+    # print(type(X_train))
+    # print(X_train.shape)
+    # print(type(Y_train))
+    # print(Y_train.shape)
 
-    # print('X test shape: ', X_test.shape)
-    # print(X_test.shape[0], 'test samples')
-    # # print(X_training.shape[0], 'training samples')
+    print("Test: ")
+    X_test, Y_test = PrepareDataset(TestDataPath, ImgColRow)
+    # print(type(X_test))
+    # print(X_test.shape)
+    # print(type(Y_test))
+    # print(Y_test.shape)
 
-    # # Convert class vectors to binary class matrices
-    # Y_test = np_utils.to_categorical(np.array(Y_test), NbrOfClasses)
+    # Checkup
+    # print("Y_test print: ")
+    # print(Y_test)
+    # kokos = X_test[0].reshape(120,120, 3)
+    # plt.imshow(kokos)
+    # plt.show()
 
 #%%
     model = Sequential()
     model.add(Convolution2D(NbrOfConvFilters, KernelSize_9,
-                input_shape=(ImgChannels, ImgRow, ImgCol), data_format = 'channels_first' ))
+                input_shape=(ImgColRow, ImgColRow, ImgChannels), padding='same' ))
+    model.add(MaxPooling2D(PoolSize))
     model.add(Activation('relu'))
-    model.add(Convolution2D(NbrOfConvFilters, KernelSize_5)) 
+    model.add(Convolution2D(NbrOfConvFilters, KernelSize_5, padding = 'same')) 
     model.add(Activation('relu'))
-    model.add(AveragePooling2D(PoolSize)) 
-    model.add(Convolution2D(NbrOfConvFilters, KernelSize_5)) 
+    model.add(AveragePooling2D(PoolSize)) # padding valid/same
+    model.add(Convolution2D(NbrOfConvFilters, KernelSize_5)) # padding valid
     model.add(Activation('relu'))
-    model.add(AveragePooling2D(PoolSize))
+    model.add(AveragePooling2D(PoolSize)) # padding valid/same
     model.add(Flatten())
-    model.add(Dense(units = 64)) # Fully connected 64 x 10816
+    model.add(Dense(64)) # Fully connected 64 x 10816
     model.add(Activation('relu'))
-    model.add(Dense(units = 4)) # Fully connected 4 x 64
+    model.add(Dense(4)) # Fully connected 4 x 64
     model.add(Activation('softmax'))
 
     model.summary()
 
-    model.compile(loss = 'categorical_crossentropy', optimizer = 'adam')
+    model.compile(loss = 'categorical_crossentropy', optimizer = 'adam')    
 
-
-
-    
-
+#%%
