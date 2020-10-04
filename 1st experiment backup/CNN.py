@@ -20,7 +20,7 @@ TestDataPath = "./PostProcessing Data/Test"
 # CNN preparation
 
 # done 
-NbrOfEpochs = 10 
+NbrOfEpochs = 3 
 ImgColRow = 120
 ImgChannels = 3
 NbrOfClasses = 4
@@ -140,11 +140,56 @@ if __name__ == "__main__":
     model.add(Flatten())
     model.add(Dense(64)) # Fully connected 64 x 10816
     model.add(Activation('relu'))
-    model.add(Dense(4)) # Fully connected 4 x 64
+    model.add(Dense(NbrOfClasses)) # Fully connected 4 x 64
     model.add(Activation('softmax'))
-
+    model.compile(loss = 'categorical_crossentropy', optimizer = 'adam', metrics=['accuracy'])    
     model.summary()
 
-    model.compile(loss = 'categorical_crossentropy', optimizer = 'adam')    
 
-#%%
+    FitnessModel = model.fit(X_train, Y_train, batch_size= BatchSize, epochs= NbrOfEpochs, verbose= 1, 
+                    validation_data= (X_test, Y_test))
+
+    # Visualizing metrics and final score
+    TrainLoss = FitnessModel.history['loss']
+    ValLoss = FitnessModel.history['val_loss']
+    TrainAcc = FitnessModel.history['accuracy']
+    ValAcc = FitnessModel.history['val_accuracy']
+    XAxis = range(NbrOfEpochs)
+    
+    
+    plt.show(block = False)
+    # fig, (PltLoss, PltAcc) = plt.subplot(1,2)
+    # fig.suptitle('Loss and Accuaracy')
+    # PltLoss.set_title("Loss")
+    
+    plt.figure(1)
+    plt.title("Loss")
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.grid(True)
+    plt.plot(XAxis, TrainLoss, label = 'Train')
+    plt.plot(XAxis, ValLoss, label = 'Val')
+    plt.legend()
+
+    plt.figure(2)
+    plt.title("Acc")
+    plt.xlabel('Epochs')
+    plt.ylabel('Accuracy')
+    plt.grid(True)
+    plt.plot(XAxis, TrainAcc, label = 'Train')
+    plt.plot(XAxis, ValAcc, label = 'Val')
+    plt.legend()
+    
+    score = model.evaluate(X_test, Y_test, verbose = 0)
+    print('Test loss: ', score[0])
+    print('Test acc: ', score[1])
+
+    plt.show()
+    
+
+
+    
+
+
+
+
