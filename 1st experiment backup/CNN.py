@@ -11,16 +11,16 @@ from keras.layers.core import Activation, Flatten, Dense
 from keras.layers.convolutional import Convolution2D, AveragePooling2D, MaxPooling2D
 from keras.optimizers import Adam
 from keras.utils import np_utils
+from keras.models import model_from_json
 
-
-#%%
 TrainingDataPath = "./PostProcessing Data/Training"
-TestDataPath = "./PostProcessing Data/Test" 
+TestDataPath = "./PostProcessing Data/Test"
+MyOwnTestDataPath =  "./PostProcessing Data/My own test data"
 
 # CNN preparation
 
 # done 
-NbrOfEpochs = 3 
+NbrOfEpochs = 3
 ImgColRow = 120
 ImgChannels = 3
 NbrOfClasses = 4
@@ -35,12 +35,11 @@ KernelSize_9 = 9
 
 # not sure
 PoolSize = 2
-# BatchSize = 1000
+# BatchSize = 512
 BatchSize = 1 # temp
 
 
-
-def Checklist():
+def EnvChecklist():
     """ Basic checkup is everything alright with libraries etc. """  
     print("TensorFlow version: {}".format(tf.__version__))
     print("Eager execution: {}".format(tf.executing_eagerly()))
@@ -86,8 +85,6 @@ def PrepareDataset(TestOrTrainingPath, ImgSize):
     # Convert class vectors to binary class matrices
     FinalLabels = np_utils.to_categorical(np.array(FinalLabels), NbrOfClasses)
 
-    # ReturnData = [FinalData, FinalLabels]
-    
     # Checkup
     # print("##########################################")
     # kokos = ImgMatrix[1].reshape(120,120, 3) #uintf8
@@ -99,33 +96,19 @@ def PrepareDataset(TestOrTrainingPath, ImgSize):
 
     return [FinalData, FinalLabels]
     
-
-
-#%%
 ###########################################
 if __name__ == "__main__":
-    print("Training: ")
-    X_train, Y_train = PrepareDataset(TrainingDataPath, ImgColRow)
-    # print(type(X_train))
-    # print(X_train.shape)
-    # print(type(Y_train))
-    # print(Y_train.shape)
 
-    print("Test: ")
-    X_test, Y_test = PrepareDataset(TestDataPath, ImgColRow)
-    # print(type(X_test))
-    # print(X_test.shape)
-    # print(type(Y_test))
-    # print(Y_test.shape)
+    X_train, Y_train = PrepareDataset(TrainingDataPath, ImgColRow)
+    X_val, Y_val = PrepareDataset(TestDataPath, ImgColRow)
 
     # Checkup
-    # print("Y_test print: ")
-    # print(Y_test)
-    # kokos = X_test[0].reshape(120,120, 3)
+    # print("Y_val print: ")
+    # print(Y_val)
+    # kokos = X_val[0].reshape(120,120, 3)
     # plt.imshow(kokos)
     # plt.show()
 
-#%%
     model = Sequential()
     model.add(Convolution2D(NbrOfConvFilters, KernelSize_9,
                 input_shape=(ImgColRow, ImgColRow, ImgChannels), padding='same' ))
@@ -145,9 +128,17 @@ if __name__ == "__main__":
     model.compile(loss = 'categorical_crossentropy', optimizer = 'adam', metrics=['accuracy'])    
     model.summary()
 
+    FitnessModel = model.fit(X_train, Y_train, batch_size= BatchSize, epochs= NbrOfEpochs, 
+                        verbose= 1, validation_data= (X_val, Y_val))
 
-    FitnessModel = model.fit(X_train, Y_train, batch_size= BatchSize, epochs= NbrOfEpochs, verbose= 1, 
-                    validation_data= (X_test, Y_test))
+    # Saving the model & weights
+    # Serialize model to JSON
+    model_json = model.to_json()
+    with open("model.json", "w") as json_file:
+        json_file.write(model_json)
+    # Serialize weights to HDF5
+    model.save_weights("model.h5")
+    print("Model has been saved to the disk")
 
     # Visualizing metrics and final score
     TrainLoss = FitnessModel.history['loss']
@@ -155,7 +146,6 @@ if __name__ == "__main__":
     TrainAcc = FitnessModel.history['accuracy']
     ValAcc = FitnessModel.history['val_accuracy']
     XAxis = range(NbrOfEpochs)
-    
     
     plt.show(block = False)
     # fig, (PltLoss, PltAcc) = plt.subplot(1,2)
@@ -180,16 +170,23 @@ if __name__ == "__main__":
     plt.plot(XAxis, ValAcc, label = 'Val')
     plt.legend()
     
-    score = model.evaluate(X_test, Y_test, verbose = 0)
+    print("Evaluation on validation dataset")
+    score = model.evaluate(X_val, Y_val, verbose = 0)
     print('Test loss: ', score[0])
     print('Test acc: ', score[1])
 
-    plt.show()
+    print("Prediction on new images")
+    X_test, Y_test = PrepareDataset(MyOwnTestDataPath, ImgColRow)
+    score = model.evaluate(X_test, Y_test, verbose = 0)
+    print('Test loss: ', score[0])
+    print('Test acc: ', score[1])
+    print("Correct classes:")
+    print(Y_test)
+    print("Predict classes:")
+    print(np.argmax(model.predict(X_test), axis = -1))
+    # print(model.predict(X_test)) # more detailed
+    # print(model.predict_classes(X_test)) # soon to be outdated
     
-
-
+    plt.show() # Hold plots until closed
     
-
-
-
 
