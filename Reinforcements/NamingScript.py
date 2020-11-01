@@ -1,7 +1,6 @@
 from os import listdir
 from os import rename
 
-# OriginalNames = listdir('./Backup/')
 OriginalNames = listdir('./iCloud Photos/')
 
 ObjectIdx = int(input("Idx of the 1st object: "))
