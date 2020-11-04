@@ -6,7 +6,7 @@ DestDir = ("./List of each waste/")
 SubfoldersList = [f.path for f in scandir('./') if f.is_dir()]
 
 del SubfoldersList[-3:] # del last dir: iCloud Photos, "List of...", and Unknown
-SubfoldersList = SubfoldersList[2:] # From "[N:]" directory onward
+SubfoldersList = SubfoldersList[1:] # From "[N:]" directory onward
 
 print(SubfoldersList) # just to be sure ;)
 
