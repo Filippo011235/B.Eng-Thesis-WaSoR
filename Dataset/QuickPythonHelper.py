@@ -1,22 +1,20 @@
-from os import listdir, rename, scandir
-
+from os import listdir, scandir
 
 # Get dir names and print them, just to be sure ;) 
 SubfoldersList = [f.path for f in scandir('./') if f.is_dir()]
-IdxDivisionDirs = SubfoldersList[1:8] # ./1 <-> 340, without ./vscode
-ClassDivisionDirs = SubfoldersList[8:-3] # ./a01 <-> a07
-print(IdxDivisionDirs, "\n")
-print(ClassDivisionDirs, "\n")
+SubfoldersList = SubfoldersList[1:7] # ./a01 <-> a07
+print(SubfoldersList)
 
-# Move data into ClassDivisionDirs
-for IdxDir in IdxDivisionDirs:
-    ImgList = listdir(IdxDir)
-    for Img in ImgList:
-        ClassDirFromName = Img[5:8]
-        ImgIdxDir = IdxDir + "/" + Img
-        ImgClassDir = "./" + ClassDirFromName + "/" + Img
-        print(ImgIdxDir, " to ", ImgClassDir)
-        # rename(ImgIdxDir, ImgClassDir)
+# # Move data into ClassDivisionDirs
+# for IdxDir in IdxDivisionDirs:
+#     ImgList = listdir(IdxDir)
+#     print(ImgList)
+#     for Img in ImgList:
+#         # if Img not "dekstop.ini":
+#         ClassDirFromName = Img[5:8]
+#         ImgIdxDir = IdxDir + "/" + Img
+#         ImgClassDir = "./" + ClassDirFromName + "/" + Img
+#         rename(ImgIdxDir, ImgClassDir)
 
 # # ImgDir = './Raw from Wadaba/'
 # ImgDir = './1 - 100/'
