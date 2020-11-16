@@ -1,5 +1,4 @@
-from os import listdir, rename
-from os import scandir
+from os import listdir, rename, scandir
 from shutil import copy2
 
 DestDir = ("./List of each waste/")
