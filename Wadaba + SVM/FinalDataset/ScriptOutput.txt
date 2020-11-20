@@ -1,0 +1,28 @@
+Extracting features from 2191 images...done. Extracted 35897344 features.
+
+* Balancing the number of features across all image categories to improve clustering.
+** Image category 2 has the least number of strongest features: 812646.
+** Using the strongest 812646 features from each of the other image categories.
+
+* Using K-Means clustering to create a 500 word visual vocabulary.
+* Number of features          : 4875876
+* Number of clusters (K)      : 500
+
+
+Evaluating 2191 images...done.
+                           PREDICTED
+KNOWN    | HDPE   LDPE   Other   PET    PP     PS     
+------------------------------------------------------
+HDPE     | 0.34   0.10   0.55    0.00   0.00   0.00   
+LDPE     | 0.00   0.31   0.69    0.00   0.00   0.00   
+Other    | 0.00   0.09   0.91    0.00   0.00   0.00   
+PET      | 0.01   0.37   0.61    0.01   0.00   0.00   
+PP       | 0.02   0.27   0.72    0.00   0.00   0.00   
+PS       | 0.00   0.36   0.60    0.00   0.00   0.04   
+
+* Average Accuracy is 0.27.
+
+
+Mój komentarz:
+(Wyniki ValidationSet wyglądają identycznie, tylko są trochę gorsze.)
+
