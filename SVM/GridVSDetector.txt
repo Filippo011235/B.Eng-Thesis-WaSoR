@@ -1,0 +1,26 @@
+Summary: Parametr funkcji bagoffeatures dotyczący wybierania punktów na zdjęciu.
+
+
+You can extract features based on a feature detector, or you can define a grid to extract 
+feature descriptors. The grid method may lose fine-grained scale information. 
+Therefore, use the grid for images that do not contain distinct features, such as an image 
+containing scenery, like the beach. Using speeded up robust features (or SURF) detector
+ provides greater scale invariance. By default, the algorithm runs the 'grid' method.
+
+Z <https://www.mathworks.com/help/vision/ug/image-classification-with-bag-of-visual-words.html> 
+
+
+PointSelection — Selection method for picking point locations
+'Grid' (default) | 'Detector'
+Selection method for picking point locations for SURF feature extraction, specified as 
+the comma-separated pair consisting of 'PointSelection' and either 'Grid' or 'Detector'. 
+There are two stages for feature extraction. First, you select a method for picking 
+the point locations, (SURF 'Detector' or 'Grid'), with the PointSelection property. 
+The second stage extracts the features. The feature extraction uses a SURF extractor for 
+both point selection methods.
+When you set PointSelection to 'Detector', the feature points are selected using a 
+speeded up robust feature (SURF) detector. Otherwise, the points are picked on a predefined 
+grid with spacing defined by 'GridStep'. This property applies only when you 
+are not specifying a custom extractor with the CustomExtractor property.
+
+Z <https://www.mathworks.com/help/vision/ref/bagoffeatures.html> 

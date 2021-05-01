@@ -1,0 +1,42 @@
+DatasetDir = './Datasets/Opti_SCV/'
+
+epochs = 15
+batch_size = 32
+
+FoldDirs = listdir(DatasetDir)
+
+    x = densenet.output
+    x = Flatten()(x)
+    layer_units = [64]
+    for num_units in layer_units:
+        x = Dense(num_units, activation='relu')(x)
+        # x = Dropout(0.1)(x)
+    predictions = Dense(nb_classes, activation='softmax')(x)
+    model = keras.Model(inputs=densenet.input, outputs=predictions)
+    
+    ReducedAdam = keras.optimizers.Adam(lr=0.0001)
+    model.compile(loss='categorical_crossentropy',
+                optimizer=ReducedAdam,
+                metrics=['accuracy'])
+
+
+    ################################
+    # Dataset generators:
+    train_datagen = ImageDataGenerator(
+        rescale=1. / 255,
+        rotation_range=180,
+        horizontal_flip=True,
+        vertical_flip=True,
+        shear_range=15)
+
+    # test_datagen same as train_datagen: 
+    # test_datagen = ImageDataGenerator(
+    #     rescale=1. / 255,
+    #     rotation_range=180,
+    #     horizontal_flip=True,
+    #     vertical_flip=True,
+    #     shear_range=15)
+
+    # Plain test_datagen: 
+    test_datagen = ImageDataGenerator(rescale=1. / 255)
+                
