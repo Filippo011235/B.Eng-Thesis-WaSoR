@@ -11,9 +11,9 @@ My engineering thesis project - A system for visual sorting plastic waste. I had
 * [Contact](#contact)
 
 ## General info
-In the recent years, several robotics companies(like [ZenRobotics](https://zenrobotics.com)) have developed a new system for waste management - Waste Sorting Robots(hence *WaSoR*). Combining robotic arms, computer vision and machine learning to segregate waste on a conveyor belt. 
+In recent years, several robotics companies(like [ZenRobotics](https://zenrobotics.com)) have developed a new system for waste management - Waste Sorting Robots(hence *WaSoR*). Combining robotic arms, computer vision and machine learning to segregate waste on a conveyor belt. 
 
-This project is my take on creating such application, starting from the crucial part - properly recognizing types of waste. My goal was to create a machine learning algorithm that distinguishes between different types of plastic trash.
+This project is my take on creating such an application, starting from the crucial part - properly recognizing types of waste. My goal was to create a machine learning algorithm that distinguishes between different types of plastic trash.
 I had used an international classification of:
 * PET
 * HDPE
@@ -38,12 +38,17 @@ My full thesis, in Polish, is [here](./Thesis%20Final.pdf).
 * Keras
 
 ## Dataset
-[Main dataset directory](./Dataset_Lean_h0/)
+My dataset consists of single pieces of plastic in the middle of a black background. It is a simplified version of real-life waste moving on a conveyor belt. The idea of such representation comes from the [WaDaBa project](http://wadaba.pcz.pl/#home). After initial experiments, I decided to use only images from the WaDaBa with the "h0" appendix. The rest of the pictures seemed redundant, disrupted results. Apart from that, I expanded the database myself, by taking photographs of my household waste. \
+[Main dataset directory.](./Dataset_Lean_h0/)
+Some examples and dataset summary on a graph:
 
-In regard to images I'd mixed [WaDaBa](http://wadaba.pcz.pl/#home) database, with the data collected by myself, from my household waste.
+<img align="center" src="Miscellaneous/MyExample.png" alt="Example Pictures" width="500">
 
-Later on, I'd proposed different classes:
-LDPE, HDPE, PETb, Misc
+<center>
+<img src="Miscellaneous/PlasorGraph.png"  alt="Dataset chart" width="500">
+</center>
+
+Each plastic object had approximately 4 pictures taken, in different positions, and state(they were being gradually crumpled). It's worth noticing that classes PET and PP consist of about 100 objects, and the rest are represented with approximately 25 waste per class.
 
 
 ## SVM
@@ -55,6 +60,9 @@ Główny skrypt znajduje się tu.
 
 Na podstawowej bazie Plasor udało sie uzyskać
 
+
+Later on, I'd proposed different classes:
+LDPE, HDPE, PETb, Misc
 
 Zaś przy próbie optymalizacji klas:
 ![Example screenshot](./img/screenshot.png)
