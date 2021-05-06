@@ -5,13 +5,16 @@ My engineering thesis project - A system for visual sorting plastic waste. I had
 * [General info](#general-info)
 * [Technologies](#technologies)
 * [Dataset](#dataset)
-* [SVM](#svm)
-* [CNN](#cnn)
+* [SVM - Support Vector Machine](#svm)
+* [CNN - Convolutional Neural Network](#cnn)
 * [Project summary](#project-summary)
 * [Contact](#contact)
 
 ## General info
-In recent years, several robotics companies(like [ZenRobotics](https://zenrobotics.com)) have developed a new system for waste management - Waste Sorting Robots(hence *WaSoR*). Combining robotic arms, computer vision and machine learning to segregate waste on a conveyor belt. 
+In recent years, several robotics companies(like [ZenRobotics](https://zenrobotics.com)) have developed a new system for waste management - Waste Sorting Robots(hence my abbreviation *WaSoR*). Combining robotic arms, computer vision and machine learning to segregate waste on a conveyor belt. Example of such system below:
+
+<img src="Miscellaneous/ZenRobo_system_simplified.png" alt="Full waste sorting Robot" width="600">
+
 
 This project is my take on creating such an application, starting from the crucial part - properly recognizing types of waste. My goal was to create a machine learning algorithm that distinguishes between different types of plastic trash.
 I had used an international classification of:
@@ -38,25 +41,24 @@ My full thesis, in Polish, is [here](./Thesis%20Final.pdf).
 * Keras
 
 ## Dataset
-My dataset consists of single pieces of plastic in the middle of a black background. It is a simplified version of real-life waste moving on a conveyor belt. The idea of such representation comes from the [WaDaBa project](http://wadaba.pcz.pl/#home). After initial experiments, I decided to use only images from the WaDaBa with the "h0" appendix. The rest of the pictures seemed redundant, disrupted results. Apart from that, I expanded the database myself, by taking photographs of my household waste. \
-[Main dataset directory.](./Dataset_Lean_h0/)
-Some examples and dataset summary on a graph:
+My dataset consists of single pieces of plastic in the middle of a black background. It is a simplified version of real-life waste moving on a conveyor belt. The idea of such representation comes from the [WaDaBa project](http://wadaba.pcz.pl/#home). After initial experiments, I decided to use only images from the WaDaBa with the "h0" appendix. The rest of the pictures seemed redundant, disrupted results. Apart from that, I expanded the database myself, by taking photographs of my household waste. Combing those 2 sources, I've created a database, which I called Plasor.\
+[Main dataset directory.](./Dataset_Lean_h0/)\
+Some example images, and the dataset summary on a graph:
 
-<img align="center" src="Miscellaneous/MyExample.png" alt="Example Pictures" width="500">
+<img align="center" src="Miscellaneous/MyExample.png" alt="Example Pictures" width="600">
 
 <center>
-<img src="Miscellaneous/PlasorGraph.png"  alt="Dataset chart" width="500">
+<img src="Miscellaneous/PlasorGraph.png"  alt="Dataset chart" width="600">
 </center>
 
-Each plastic object had approximately 4 pictures taken, in different positions, and state(they were being gradually crumpled). It's worth noticing that classes PET and PP consist of about 100 objects, and the rest are represented with approximately 25 waste per class.
+Each plastic object had approximately 4 pictures taken, in different positions, and state(they were being gradually crumpled). It's worth noticing that classes PET and PP consist of about 100 objects, and the rest are represented with approximately 25 waste per class. 
 
 
 ## SVM
+Following the projects of [M. Yang and G. Thung](http://cs229.stanford.edu/proj2016/report/ThungYang-ClassificationOfTrashForRecyclabilityStatus-report.pdf), and [Sakr et. al.](https://ieeexplore.ieee.org/document/7777453), firstly I had researched the Support Vector Machine algorithm, with the Bag of Features technique. I implemented it in Matlab(the Computer Vision Toolbox is required). Main script for SVM is [here](./SVM/SVM.m).
 
-Wzorując się na pracach SAKR, YANG, najpierw zrealizowałem algorytm Support Vector Machine, z techniką Bag of Features. Opracowałem go w Matlabie, korzystając z Machine Learning Toolbox
-
-Główny skrypt znajduje się tu.
-[Main SVM script](./SVM/SVM.m)
+In a nutshell, bag of features learns K points(usually 500) from the training set images 
+In addition, a 10-fold stratified crossvalidation was applied, to compensate uneven classes.
 
 Na podstawowej bazie Plasor udało sie uzyskać
 
