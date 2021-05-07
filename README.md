@@ -41,7 +41,8 @@ My full thesis, in Polish, is [here](./Thesis%20Final.pdf).
 * Keras
 
 ## Dataset
-My dataset consists of single pieces of plastic in the middle of a black background. It is a simplified version of real-life waste moving on a conveyor belt. The idea of such representation comes from the [WaDaBa project](http://wadaba.pcz.pl/#home). After initial experiments, I decided to use only images from the WaDaBa with the "h0" appendix. The rest of the pictures seemed redundant, disrupted results. Apart from that, I expanded the database myself, by taking photographs of my household waste. Combing those 2 sources, I've created a database, which I called Plasor.\
+My dataset consists of pictures of single pieces of plastic in the middle of a black background. It is a simplified version of real-life waste, moving on a conveyor belt. The idea of such representation comes from the [WaDaBa project](http://wadaba.pcz.pl/#home). \
+After initial experiments, I decided to use only images from the WaDaBa with the "h0" appendix. The rest of the pictures seemed redundant, disrupted results. Apart from that, I expanded the database myself, by taking photographs of my household waste. Combing those 2 sources, I've created a database, which I called Plasor.\
 [Main dataset directory.](./Dataset_Lean_h0/)\
 Some example images, and the dataset summary on a graph:
 
@@ -51,17 +52,21 @@ Some example images, and the dataset summary on a graph:
 <img src="Miscellaneous/PlasorGraph.png"  alt="Dataset chart" width="600">
 </center>
 
-Each plastic object had approximately 4 pictures taken, in different positions, and state(they were being gradually crumpled). It's worth noticing that classes PET and PP consist of about 100 objects, and the rest are represented with approximately 25 waste per class. 
+Each plastic object had approximately 4 pictures taken, in different positions, and state(they were being gradually crumpled). It's worth noticing that classes PET and PP consist of about 100 objects, and the rest are represented with approximately 25 waste pieces per class. 
 
 
 ## SVM
-Following the projects of [M. Yang and G. Thung](http://cs229.stanford.edu/proj2016/report/ThungYang-ClassificationOfTrashForRecyclabilityStatus-report.pdf), and [Sakr et. al.](https://ieeexplore.ieee.org/document/7777453), firstly I had researched the Support Vector Machine algorithm, with the Bag of Features technique. I implemented it in Matlab(the Computer Vision Toolbox is required). Main script for SVM is [here](./SVM/SVM.m).
+Following the projects of [M. Yang and G. Thung](http://cs229.stanford.edu/proj2016/report/ThungYang-ClassificationOfTrashForRecyclabilityStatus-report.pdf), and [Sakr et. al.](https://ieeexplore.ieee.org/document/7777453), firstly I had researched the Support Vector Machine algorithm, with the Bag of Features technique. In addition, a 10-fold stratified crossvalidation was applied, to compensate uneven classes. 
+I implemented it in Matlab(the Computer Vision Toolbox is required). Main script for SVM is [here](./SVM/SVM.m).
 
-In a nutshell, bag of features learns K points(usually 500) from the training set images 
-In addition, a 10-fold stratified crossvalidation was applied, to compensate uneven classes.
+<!-- In a nutshell, bag of features learns K points(usually 500) from the training set images  -->
 
+<!-- ## Very first exp -->
+
+### Basic experiment
 Na podstawowej bazie Plasor udało sie uzyskać
 
+### Class optimization
 
 Later on, I'd proposed different classes:
 LDPE, HDPE, PETb, Misc
@@ -71,7 +76,7 @@ Zaś przy próbie optymalizacji klas:
 
 ## CNN
 Ze względu na mały dataset, niektóre klasy po kilkadziesiąt zdjęć, wzorowałem się na artykułach krozsytających z Transfer Learning, jak Cumerwerwe, Xianjio. 
-
+[Bircanoğlu et. al.](https://www.researchgate.net/publication/325626219_RecycleNet_Intelligent_Waste_Sorting_Using_Deep_Neural_Networks)
 
 Na podstawowej bazie Plasor udało sie uzyskać
 ![Example screenshot](./img/screenshot.png)
@@ -80,8 +85,7 @@ Zaś przy próbie optymalizacji klas:
 ![Example screenshot](./img/screenshot.png)
 
 ## Project summary
-Sorting plastic waste is a difficult issue. Objects can be diverse within a single type, as well as there are similarities between classes. Each algorithm, with different parameters, performs better or worse, under given conditions.
-
+Sorting plastic waste is a difficult issue. On one hand objects can be diverse within a single type, and on the other there are similarities between classes. Each algorithm, with different parameters, performs better or worse, under given conditions.
 
 Ideas on how to improve recognition:
 1. Redefining classes, creating groups like "cosmetics", "packaging films", etc.
