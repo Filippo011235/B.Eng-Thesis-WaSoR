@@ -42,7 +42,7 @@ My full thesis, in Polish, is [here](./Thesis%20Final.pdf).
 
 ## Dataset
 My dataset consists of pictures of single pieces of plastic in the middle of a black background. It is a simplified version of real-life waste, moving on a conveyor belt. The idea of such representation comes from the [WaDaBa project](http://wadaba.pcz.pl/#home). \
-After initial experiments, I decided to use only images from the WaDaBa with the "h0" appendix. The rest of the pictures seemed redundant, disrupted results. Apart from that, I expanded the database myself, by taking photographs of my household waste. Combing those 2 sources, I've created a database, which I called Plasor.\
+After initial experiments, I decided to use only images from the WaDaBa with the "h0" appendix. The rest of the pictures seemed redundant, disrupted results. Apart from that, I expanded the database myself, by taking photographs of my household waste. Combining those 2 sources, I've created a database, which I called Plasor.\
 [Main dataset directory.](./Dataset_Lean_h0/)\
 Some example images, and the dataset summary on a graph:
 
@@ -52,37 +52,54 @@ Some example images, and the dataset summary on a graph:
 <img src="Miscellaneous/PlasorGraph.png"  alt="Dataset chart" width="600">
 </center>
 
-Each plastic object had approximately 4 pictures taken, in different positions, and state(they were being gradually crumpled). It's worth noticing that classes PET and PP consist of about 100 objects, and the rest are represented with approximately 25 waste pieces per class. 
+Each plastic object had approximately 4 pictures taken, in different positions, and state(they were being gradually crumpled). It's worth noting that classes PET and PP consist of about 100 objects, and the rest are represented with approximately 25 waste pieces per class. 
 
 
 ## SVM
-Following the projects of [M. Yang and G. Thung](http://cs229.stanford.edu/proj2016/report/ThungYang-ClassificationOfTrashForRecyclabilityStatus-report.pdf), and [Sakr et. al.](https://ieeexplore.ieee.org/document/7777453), firstly I had researched the Support Vector Machine algorithm, with the Bag of Features technique. In addition, a 10-fold stratified crossvalidation was applied, to compensate uneven classes. 
+Following the projects of [M. Yang and G. Thung](http://cs229.stanford.edu/proj2016/report/ThungYang-ClassificationOfTrashForRecyclabilityStatus-report.pdf), and [Sakr et. al.](https://ieeexplore.ieee.org/document/7777453), firstly I had researched the Support Vector Machine algorithm, with the Bag of Features technique. In addition, a 10-fold stratified crossvalidation was applied, to compensate for uneven classes. 
 I implemented it in Matlab(the Computer Vision Toolbox is required). Main script for SVM is [here](./SVM/SVM.m).
 
 <!-- In a nutshell, bag of features learns K points(usually 500) from the training set images  -->
 
 <!-- ## Very first exp -->
 
-### Basic experiment
-Na podstawowej bazie Plasor udało sie uzyskać
+### Basic result
+Using an unmodified Plasor dataset, the confusion matrix for SVM is:\
+<img src="Miscellaneous/Results/SVM_basic.png"  alt="SVM basic" >
+
+The LDPE and HDPE classes are the two least abundant, but best recognised. The accuracy with these types can be attributed to the fact that they are the most "homogeneous" classes in which objects have similar characteristics. Additionally, when the SVM performs an incorrect classification, it mostly selects these two types. Waste types
+PET is particularly confused as HDPE. This is consistent in that among them there are several non-transparent bottles. Other and PP are confused with LDPE. It is worth to point out that these 3 classes share the possession of film packaging. \
+To sum up, the author concludes that uniformity, how objects are similar to each other within a class determines the accuracy of recognition.
+
 
 ### Class optimization
+In various experiments, the most problematic classes were PP, Other, PS, and also PET caused problems. This may be due to how diverse these groups are. 
+Therefore, I decided to try to combine these classes into a new one. From PET I subjectively selected 17 wastes, deviating from the shape of the bottle. 
+All these images were combined into a new class: Misc, from *Miscellaneous*. The remaining PET was renamed to PETb, from *PET bottles*. \
+When implementing such a system in a robotic application, the Misc class waste could be ignored and further passed through a conveyor belt.
 
-Later on, I'd proposed different classes:
-LDPE, HDPE, PETb, Misc
+Results after this attempt at class optimization: \
+<img src="Miscellaneous/Results/SVM_Opti.png"  alt="SVM opti">
 
-Zaś przy próbie optymalizacji klas:
-![Example screenshot](./img/screenshot.png)
+The classifier recognises the HDPE, LDPE grades a few per cent better, while the efficiency for the PETb grade increased by 14%. The accuracy at the Misc type is similar to the arithmetic mean accuracy from the separate PP, PS, Other classes. The improvement may be because the classifier avoids mistakes between these classes. However, still, every third
+picture is mistaken for LDPE and one in five for HDPE. Also, despite defining PETb as a "bottle class", there are objects in it misclassified as LDPE, or Misc. 
+In summary, the redefinition, simplification, of classes has only helped a little in effective sorting.
 
 ## CNN
 Ze względu na mały dataset, niektóre klasy po kilkadziesiąt zdjęć, wzorowałem się na artykułach krozsytających z Transfer Learning, jak Cumerwerwe, Xianjio. 
 [Bircanoğlu et. al.](https://www.researchgate.net/publication/325626219_RecycleNet_Intelligent_Waste_Sorting_Using_Deep_Neural_Networks)
 
-Na podstawowej bazie Plasor udało sie uzyskać
-![Example screenshot](./img/screenshot.png)
+### Basic experiment
+Na podstawowej bazie Plasor udało sie uzyskać\
+<img src="Miscellaneous/Results/CNN_Basic.png"  alt="CNN basic">
 
-Zaś przy próbie optymalizacji klas:
-![Example screenshot](./img/screenshot.png)
+### Basic experiment
+Zaś przy próbie optymalizacji klas:\
+<img src="Miscellaneous/Results/CNN_Opti.png"  alt="CNN opti" >
+
+### Basic experiment
+
+<img src="Miscellaneous/Results/CNN_Multi.png"  alt="CNN multi">
 
 ## Project summary
 Sorting plastic waste is a difficult issue. On one hand objects can be diverse within a single type, and on the other there are similarities between classes. Each algorithm, with different parameters, performs better or worse, under given conditions.
