@@ -11,7 +11,7 @@ My engineering thesis project - A system for visual sorting plastic waste. I had
 * [Contact](#contact)
 
 ## General info
-In recent years, several robotics companies(like [ZenRobotics](https://zenrobotics.com)) have developed a new system for waste management - Waste Sorting Robots(hence my abbreviation *WaSoR*). Combining robotic arms, computer vision and machine learning to segregate waste on a conveyor belt. Example of such system below:
+In recent years, several robotics companies, e.g. [ZenRobotics](https://zenrobotics.com), have developed a new system for waste management - Waste Sorting Robots(hence my abbreviation *WaSoR*). Combining robotic arms, computer vision and machine learning to segregate waste on a conveyor belt. Example of such system below:
 
 <img src="Miscellaneous/ZenRobo_system_simplified.png" alt="Full waste sorting Robot" width="600">
 
@@ -72,13 +72,13 @@ PET is particularly confused as HDPE. This is consistent in that among them ther
 To sum up, the author concludes that uniformity, how objects are similar to each other within a class determines the accuracy of recognition.
 
 
-### Class optimization
+### Class optimisation
 In various experiments, the most problematic classes were PP, Other, PS, and also PET caused problems. This may be due to how diverse these groups are. 
 Therefore, I decided to try to combine these classes into a new one. From PET I subjectively selected 17 wastes, deviating from the shape of the bottle. 
 All these images were combined into a new class: Misc, from *Miscellaneous*. The remaining PET was renamed to PETb, from *PET bottles*. \
 When implementing such a system in a robotic application, the Misc class waste could be ignored and further passed through a conveyor belt.
 
-Results after this attempt at class optimization: \
+Results after this attempt at class optimisation: \
 <img src="Miscellaneous/Results/SVM_Opti.png"  alt="SVM opti">
 
 The classifier recognises the HDPE, LDPE grades a few per cent better, while the efficiency for the PETb grade increased by 14%. The accuracy at the Misc type is similar to the arithmetic mean accuracy from the separate PP, PS, Other classes. The improvement may be because the classifier avoids mistakes between these classes. However, still, every third
@@ -86,20 +86,56 @@ picture is mistaken for LDPE and one in five for HDPE. Also, despite defining PE
 In summary, the redefinition, simplification, of classes has only helped a little in effective sorting.
 
 ## CNN
-Ze względu na mały dataset, niektóre klasy po kilkadziesiąt zdjęć, wzorowałem się na artykułach krozsytających z Transfer Learning, jak Cumerwerwe, Xianjio. 
-[Bircanoğlu et. al.](https://www.researchgate.net/publication/325626219_RecycleNet_Intelligent_Waste_Sorting_Using_Deep_Neural_Networks)
+Due to the small size of the dataset, for deep learning, I used the transfer learning approach, based on the work of [Xu et. al.](https://www.preprints.org/manuscript/202002.0327/v1) and especially [Bircanoğlu et. al.](https://www.researchgate.net/publication/325626219_RecycleNet_Intelligent_Waste_Sorting_Using_Deep_Neural_Networks).  
+
+### CNN implementation
+Using Python and the Keras library, I started with the convolutional part of the DenseNet121 trained on the ImageNet dataset. After initial experiments, 4 layers were added on top of that:
+1. Flatten 
+2. Dense with 64 units and ReLu activation
+3. Dropout with a parameter of 0.1
+4. Dense output layer, with units depending on the number of classes(6 or 4) and a softmax activation function
+
+Top layers displayed using `model.summary()`:\
+<img src="Miscellaneous/CNN/Arch.png"  alt="CNN top architecture">
+
+The loss function was calculated with cross-entropy, and the Adam optimiser was used, with a learning rate factor of 0.0001. The batch size was set to 32.
+
+Like with SVM, 10-fold stratified cross-validation was used. Due to practical considerations and lack of time, experiments were conducted only for 15 epochs.
+
+Using `ImageDataGenerator`, training images were randomly rotated within a 180-degree range, flipped vertically or horizontally, and subjected to a shear transformation for up to 15 degrees. The test images were not processed. 
 
 ### Basic experiment
-Na podstawowej bazie Plasor udało sie uzyskać\
-<img src="Miscellaneous/Results/CNN_Basic.png"  alt="CNN basic">
+On the basic Plasor dataset, the average accuracy across folds was 73 %. Accuracy, loss and confusion matrix for an example fold:
+<img src="Miscellaneous/CNN/fold3_Acc.png"  alt="CNN basic acc"  width="450">
+<img src="Miscellaneous/CNN/fold3_Loss.png"  alt="CNN basic loss"  width="450">
+<img src="Miscellaneous/Results/CNN_Basic.png"  alt="CNN basic conf matrix">
 
-### Basic experiment
-Zaś przy próbie optymalizacji klas:\
+The fluctuating values for the validation set may be due to the small number of samples(most classes are represented by about 10 images). It is also likely that some hyperparameters and architecture are not optimised.
+
+In the first experiment, under the same conditions, the CNN performed better than the SVM, in every class except HDPE and PS. However, the confusion of HDPE objects with, the more numerous, PET class is not surprising. The network has learned more examples, is biased towards PET, and these two classes share non-transparent bottles.
+A similar phenomenon occurs between PS and the more numerous PP, which share many similar objects. The worst performing class is Other, confused with LDPE and PP.
+
+
+### Class optimisation
+In the second experiment, I performed network training on the modified Plasor set. The attempt to optimising classes from SVM was repeated - combining Other, PP, PS and part of PET into Misc class and the rest of PET into PETb. The accuracy improved to 87 %.
+<img src="Miscellaneous/CNN/fold0_O_Acc.png"  alt="CNN opti acc"  width="450">
+<img src="Miscellaneous/CNN/fold0_O_Loss.png"  alt="CNN opti loss"  width="450">
 <img src="Miscellaneous/Results/CNN_Opti.png"  alt="CNN opti" >
 
-### Basic experiment
+The class optimisation proposal resulted in an approximately 15 % improvement in classification accuracy. The resulting graphs were smoother in shape than in the previous experiment.
 
+The recognition of HDPE and LDPE had been most affected by the change. Due to their small numbers, these classes are tested on about nine images. Therefore, misclassification of e.g. only 4 images translates into a 50 % error. \
+PETb, despite being defined as a class of bottles, still has 10 % wrongly considered being Misc. On the other hand, the Misc class achieved an accuracy of 93 %. This shows the effectiveness of such a fusion, at least during the initial stages of the project.
+
+### Equalisation and optimisation of classes
+The last experiment was performed on a Plasor dataset with modified classes and equalized number of images per class. Each image from the training set of HDPE, LDPE and PETb classes was duplicated 6, 7 and 1 time respectively. The images in the validation set were left unchanged. Now, the HDPE, LDPE and Misc classes had approximately 560 images, while PETb had 660. Due to the increased number of images of the same waste shots, the parameters of the classifier model were changed. The Dropout layer factor was set to 0.2 to prevent overfitting. The average accuracy reached 90%.\
+<img src="Miscellaneous/CNN/fold1_O_Multi_Acc.png"  alt="CNN opti multi acc"  width="450">
+<img src="Miscellaneous/CNN/fold1_O_Multi_Loss.png"  alt="CNN opti multi loss"  width="450">
 <img src="Miscellaneous/Results/CNN_Multi.png"  alt="CNN multi">
+
+In spite of the increase in the Dropout layer parameter, the phenomenon of overfitting still increased relative to previous experiments.
+
+Multiplying the data resulted in better accuracy in all classes, apart from a slight deterioration in Misc. These results would still need to be confronted with classifying new objects. However, the method of equalization seems to help with smaller classes.
 
 ## Project summary
 Sorting plastic waste is a difficult issue. On one hand objects can be diverse within a single type, and on the other there are similarities between classes. Each algorithm, with different parameters, performs better or worse, under given conditions.
