@@ -11,7 +11,7 @@ My engineering thesis project - A system for visual sorting plastic waste. I had
 * [Contact](#contact)
 
 ## General info
-In recent years, several robotics companies, e.g. [ZenRobotics](https://zenrobotics.com), have developed a new system for waste management - Waste Sorting Robots(hence my abbreviation *WaSoR*). Combining robotic arms, computer vision and machine learning to segregate waste on a conveyor belt. Example of such system below:
+In recent years, several robotics companies, e.g. [ZenRobotics](https://zenrobotics.com), have developed a new system for waste management - Waste Sorting Robots(hence my abbreviation *WaSoR*). Combining robotic arms, computer vision and machine learning to segregate waste on a conveyor belt. Example of such system:
 
 <img src="Miscellaneous/ZenRobo_system_simplified.png" alt="Full waste sorting Robot" width="600">
 
@@ -56,8 +56,9 @@ Each plastic object had approximately 4 pictures taken, in different positions, 
 
 
 ## SVM
-Following the projects of [M. Yang and G. Thung](http://cs229.stanford.edu/proj2016/report/ThungYang-ClassificationOfTrashForRecyclabilityStatus-report.pdf), and [Sakr et. al.](https://ieeexplore.ieee.org/document/7777453), firstly I had researched the Support Vector Machine algorithm, with the Bag of Features technique. In addition, a 10-fold stratified crossvalidation was applied, to compensate for uneven classes. 
-I implemented it in Matlab(the Computer Vision Toolbox is required). Main script for SVM is [here](./SVM/SVM.m).
+I started with the classical machine learning approach. Following the projects of [M. Yang and G. Thung](http://cs229.stanford.edu/proj2016/report/ThungYang-ClassificationOfTrashForRecyclabilityStatus-report.pdf), and [Sakr et. al.](https://ieeexplore.ieee.org/document/7777453), I had researched the Support Vector Machine algorithm, with the Bag of Features technique. In addition, 10-fold stratified cross-validation was applied, to compensate for uneven classes. No data augmentation was applied.
+The algorithm had been implemented in Matlab(the Computer Vision Toolbox is required). \
+Main SVM script is [here](./SVM/SVM.m).
 
 <!-- In a nutshell, bag of features learns K points(usually 500) from the training set images  -->
 
@@ -67,26 +68,27 @@ I implemented it in Matlab(the Computer Vision Toolbox is required). Main script
 Using an unmodified Plasor dataset, the confusion matrix for SVM is:\
 <img src="Miscellaneous/Results/SVM_basic.png"  alt="SVM basic" >
 
-The LDPE and HDPE classes are the two least abundant, but best recognised. The accuracy with these types can be attributed to the fact that they are the most "homogeneous" classes in which objects have similar characteristics. Additionally, when the SVM performs an incorrect classification, it mostly selects these two types. Waste types
+The LDPE and HDPE classes are the two least abundant, but best recognised. The accuracy with these types can be attributed to the fact that they are the most "homogeneous" classes in which objects have similar characteristics. Additionally, when the SVM performs an incorrect classification, it mostly selects these two types. Waste type
 PET is particularly confused as HDPE. This is consistent in that among them there are several non-transparent bottles. Other and PP are confused with LDPE. It is worth to point out that these 3 classes share the possession of film packaging. \
-To sum up, the author concludes that uniformity, how objects are similar to each other within a class determines the accuracy of recognition.
+To sum up, I concluded that uniformity, how objects are similar to each other within a class, determines the accuracy of recognition.
 
 
 ### Class optimisation
-In various experiments, the most problematic classes were PP, Other, PS, and also PET caused problems. This may be due to how diverse these groups are. 
-Therefore, I decided to try to combine these classes into a new one. From PET I subjectively selected 17 wastes, deviating from the shape of the bottle. 
+In various experiments, the most problematic classes were PP, Other, PS, and also PET caused some problems. This may be due to how diverse these groups are. 
+Therefore, I decided to try to combine PP, Other, PS, and part of PET into a new class. From PET I subjectively selected 17 waste, deviating from the shape of the bottle. 
 All these images were combined into a new class: Misc, from *Miscellaneous*. The remaining PET was renamed to PETb, from *PET bottles*. \
 When implementing such a system in a robotic application, the Misc class waste could be ignored and further passed through a conveyor belt.
 
 Results after this attempt at class optimisation: \
 <img src="Miscellaneous/Results/SVM_Opti.png"  alt="SVM opti">
 
-The classifier recognises the HDPE, LDPE grades a few per cent better, while the efficiency for the PETb grade increased by 14%. The accuracy at the Misc type is similar to the arithmetic mean accuracy from the separate PP, PS, Other classes. The improvement may be because the classifier avoids mistakes between these classes. However, still, every third
-picture is mistaken for LDPE and one in five for HDPE. Also, despite defining PETb as a "bottle class", there are objects in it misclassified as LDPE, or Misc. 
+The classifier recognises the HDPE, LDPE classes a few per cent better, while the efficiency for the PETb group increased by 14%. The accuracy at the Misc type is similar to the arithmetic mean accuracy from the separate PP, PS, Other classes. The slight improvement may be because the classifier avoids mistakes between these classes. However, still, every third picture is mistaken for LDPE and one in five for HDPE. Also, despite defining PETb as a "bottle class", there are objects in it misclassified as LDPE, or Misc. 
 In summary, the redefinition, simplification, of classes has only helped a little in effective sorting.
 
 ## CNN
-Due to the small size of the dataset, for deep learning, I used the transfer learning approach, based on the work of [Xu et. al.](https://www.preprints.org/manuscript/202002.0327/v1) and especially [Bircanoğlu et. al.](https://www.researchgate.net/publication/325626219_RecycleNet_Intelligent_Waste_Sorting_Using_Deep_Neural_Networks).  
+Due to the small size of the dataset, for deep learning, I used the transfer learning approach, based on the work of [Xu et. al.](https://www.preprints.org/manuscript/202002.0327/v1) and especially [Bircanoğlu et. al.](https://www.researchgate.net/publication/325626219_RecycleNet_Intelligent_Waste_Sorting_Using_Deep_Neural_Networks).
+
+Main script can be found [here](./CNN%20with%20TL/DenseFull.py).
 
 ### CNN implementation
 Using Python and the Keras library, I started with the convolutional part of the DenseNet121 trained on the ImageNet dataset. After initial experiments, 4 layers were added on top of that:
@@ -100,9 +102,9 @@ Top layers displayed using `model.summary()`:\
 
 The loss function was calculated with cross-entropy, and the Adam optimiser was used, with a learning rate factor of 0.0001. The batch size was set to 32.
 
-Like with SVM, 10-fold stratified cross-validation was used. Due to practical considerations and lack of time, experiments were conducted only for 15 epochs.
+Like with SVM, 10-fold stratified cross-validation was used. Due to practical considerations, and lack of time, experiments were conducted only for 15 epochs.
 
-Using `ImageDataGenerator`, training images were randomly rotated within a 180-degree range, flipped vertically or horizontally, and subjected to a shear transformation for up to 15 degrees. The test images were not processed. 
+Using `ImageDataGenerator`, training images were randomly rotated within a 180-degree range, flipped vertically or horizontally, and subjected to a shear transformation for up to 15 degrees. The validation images were not processed. 
 
 ### Basic experiment
 On the basic Plasor dataset, the average accuracy across folds was 73 %. Accuracy, loss and confusion matrix for an example fold:
@@ -133,7 +135,7 @@ The last experiment was performed on a Plasor dataset with modified classes and 
 <img src="Miscellaneous/CNN/fold1_O_Multi_Loss.png"  alt="CNN opti multi loss"  width="450">
 <img src="Miscellaneous/Results/CNN_Multi.png"  alt="CNN multi">
 
-In spite of the increase in the Dropout layer parameter, the phenomenon of overfitting still increased relative to previous experiments.
+In spite of the increase in the Dropout layer parameter, overfitting still increased relative to previous experiments.
 
 Multiplying the data resulted in better accuracy in all classes, apart from a slight deterioration in Misc. These results would still need to be confronted with classifying new objects. However, the method of equalization seems to help with smaller classes.
 
