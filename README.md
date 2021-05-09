@@ -13,7 +13,11 @@ My engineering thesis project - A system for visual sorting plastic waste. I had
 ## General info
 In recent years, several robotics companies, e.g. [ZenRobotics](https://zenrobotics.com), have developed a new system for waste management - Waste Sorting Robots(hence my abbreviation *WaSoR*). Combining robotic arms, computer vision and machine learning to segregate waste on a conveyor belt. Example of such system:
 
-<img src="Miscellaneous/ZenRobo_system_simplified.png" alt="Full waste sorting Robot" width="600">
+<p align="center">
+  <img src="Miscellaneous/ZenRobo_system_simplified.png" alt="Full waste sorting Robot" width="600">
+</p>
+
+
 
 
 This project is my take on creating such an application, starting from the crucial part - properly recognizing types of waste. My goal was to create a machine learning algorithm that distinguishes between different types of plastic trash.
@@ -31,7 +35,6 @@ Researched ML algorithms:
 1. Support Vector Machines, with Bag of Features technique - A proven algorithm that achieved an average of 60% accuracy. Particularly effective with simple, uniform, classes.
 2. Convolutional Neural Network with Transfer Learning - A modern approach that experimentally reached 90% accuracy. Challenging, but more promising classifier.
 
-
 My full thesis, in Polish, is [here](./Thesis%20Final.pdf).
 
 
@@ -46,11 +49,14 @@ After initial experiments, I decided to use only images from the WaDaBa with the
 [Main dataset directory.](./Dataset_Lean_h0/)\
 Some example images, and the dataset summary on a graph:
 
-<img align="center" src="Miscellaneous/MyExample.png" alt="Example Pictures" width="600">
+<p align="center">
+  <img src="Miscellaneous/MyExample.png" alt="Example Pictures" width="600">  
+</p>
 
-<center>
-<img src="Miscellaneous/PlasorGraph.png"  alt="Dataset chart" width="600">
-</center>
+
+<p align="center">
+  <img src="Miscellaneous/PlasorGraph.png"  alt="Dataset chart" width="600">
+</p>
 
 Each plastic object had approximately 4 pictures taken, in different positions, and state(they were being gradually crumpled). It's worth noting that classes *PET* and *PP* consist of about 100 objects, and the rest are represented with approximately 25 waste pieces per class. 
 
@@ -65,8 +71,12 @@ Main SVM script is [here](./SVM/SVM.m).
 <!-- ## Very first exp -->
 
 ### Basic result
-Using an unmodified Plasor dataset, the confusion matrix for SVM is:\
-<img src="Miscellaneous/Results/SVM_basic.png"  alt="SVM basic" >
+Using an unmodified Plasor dataset, the confusion matrix for SVM is:
+<p align="center">
+  <img src="Miscellaneous/Results/SVM_basic.png"  alt="SVM basic" >
+</p>
+
+
 
 The *LDPE* and *HDPE* classes are the two least abundant, but best recognised. The accuracy with these types can be attributed to the fact that they are the most "homogeneous" classes in which objects have similar characteristics. Additionally, when the SVM performs an incorrect classification, it mostly selects these two types. Waste type
 *PET* is particularly confused as *HDPE*. This is consistent in that among them there are several non-transparent bottles. *Other* and *PP* are confused with *LDPE*. It is worth to point out that these 3 classes share the possession of film packaging. \
@@ -79,8 +89,12 @@ Therefore, I decided to try to combine *PP*, *Other*, *PS*, and part of *PET* in
 All these images were combined into a new class: *Misc*, from *Miscellaneous*. The remaining *PET* was renamed to *PETb*, from **PET* bottles*. \
 When implementing such a system in a robotic application, the *Misc* class waste could be ignored and further passed through a conveyor belt.
 
-Results after this attempt at class optimisation: \
-<img src="Miscellaneous/Results/SVM_Opti.png"  alt="SVM opti">
+Results after this attempt at class optimisation: 
+<p align="center">
+  <img src="Miscellaneous/Results/SVM_Opti.png"  alt="SVM opti">
+</p>
+
+
 
 The classifier recognises the *HDPE*, *LDPE* classes a few per cent better, while the efficiency for the *PETb* group increased by 14%. The accuracy at the *Misc* type is similar to the arithmetic mean accuracy from the separate *PP*, *PS*, *Other* classes. The slight improvement may be because the classifier avoids mistakes between these classes. However, still, every third picture is mistaken for *LDPE* and one in five for *HDPE*. Also, despite defining *PETb* as a "bottle class", there are objects in it misclassified as *LDPE*, or *Misc*. 
 In summary, the redefinition, simplification, of classes has only helped a little in effective sorting.
@@ -97,8 +111,11 @@ Using Python and the Keras library, I started with the convolutional part of the
 3. Dropout with a parameter of 0.1
 4. Dense output layer, with units depending on the number of classes(6 or 4) and a softmax activation function
 
-Top layers displayed using `model.summary()`:\
-<img src="Miscellaneous/CNN/Arch.png"  alt="CNN top architecture">
+Top layers displayed using `model.summary()`:
+<p align="center">
+  <img src="Miscellaneous/CNN/Arch.png"  alt="CNN top architecture">
+</p>
+
 
 The loss function was calculated with cross-entropy, and the Adam optimiser was used, with a learning rate factor of 0.0001. The batch size was set to 32.
 
@@ -110,7 +127,12 @@ Using `ImageDataGenerator`, training images were randomly rotated within a 180-d
 On the basic Plasor dataset, the average accuracy across folds was 73%. Accuracy, loss and confusion matrix for an example fold:
 <img src="Miscellaneous/CNN/fold3_Acc.png"  alt="CNN basic acc"  width="450">
 <img src="Miscellaneous/CNN/fold3_Loss.png"  alt="CNN basic loss"  width="450">
-<img src="Miscellaneous/Results/CNN_Basic.png"  alt="CNN basic conf matrix">
+
+<p align="center">
+  <img src="Miscellaneous/Results/CNN_Basic.png"  alt="CNN basic conf matrix">
+</p>
+
+
 
 The fluctuating values for the validation set may be due to the small number of samples(most classes are represented by about 10 images). It is also likely that some hyperparameters and architecture are not optimised.
 
@@ -122,7 +144,11 @@ A similar phenomenon occurs between *PS* and the more numerous *PP*, which share
 In the second experiment, I performed network training on the modified Plasor set. The attempt to optimising classes from SVM was repeated - combining *Other*, *PP*, *PS* and part of *PET* into *Misc* class and the rest of *PET* into *PETb*. The accuracy improved to 87%.
 <img src="Miscellaneous/CNN/fold0_O_Acc.png"  alt="CNN opti acc"  width="450">
 <img src="Miscellaneous/CNN/fold0_O_Loss.png"  alt="CNN opti loss"  width="450">
-<img src="Miscellaneous/Results/CNN_Opti.png"  alt="CNN opti" >
+
+<p align="center">
+  <img src="Miscellaneous/Results/CNN_Opti.png"  alt="CNN opti" >
+</p>
+
 
 The class optimisation proposal resulted in an approximately 15% improvement in classification accuracy. The resulting graphs were smoother in shape than in the previous experiment.
 
@@ -133,7 +159,11 @@ The recognition of *HDPE* and *LDPE* had been most affected by the change. Due t
 The last experiment was performed on a Plasor dataset with modified classes and equalized number of images per class. Each image from the training set of *HDPE*, *LDPE* and *PETb* classes was duplicated 6, 7 and 1 time respectively. The images in the validation set were left unchanged. Now, the *HDPE*, *LDPE* and *Misc* classes had approximately 560 images, while *PETb* had 660. Due to the increased number of images of the same waste shots, the parameters of the classifier model were changed. The Dropout layer factor was set to 0.2 to prevent overfitting. The average accuracy reached 90%.\
 <img src="Miscellaneous/CNN/fold1_O_Multi_Acc.png"  alt="CNN opti multi acc"  width="450">
 <img src="Miscellaneous/CNN/fold1_O_Multi_Loss.png"  alt="CNN opti multi loss"  width="450">
-<img src="Miscellaneous/Results/CNN_Multi.png"  alt="CNN multi">
+
+<p align="center">
+  <img src="Miscellaneous/Results/CNN_Multi.png"  alt="CNN multi">
+</p>
+
 
 In spite of the increase in the Dropout layer parameter, overfitting still increased relative to previous experiments.
 
