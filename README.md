@@ -18,12 +18,12 @@ In recent years, several robotics companies, e.g. [ZenRobotics](https://zenrobot
 
 This project is my take on creating such an application, starting from the crucial part - properly recognizing types of waste. My goal was to create a machine learning algorithm that distinguishes between different types of plastic trash.
 I had used an international classification of:
-* PET
-* HDPE
-* LDPE
-* PP
-* PS
-* Other
+* *PET*
+* *HDPE*
+* *LDPE*
+* *PP*
+* *PS*
+* *Other*
 * (PVC was excluded, as there weren't enough samples)
 
 
@@ -52,7 +52,7 @@ Some example images, and the dataset summary on a graph:
 <img src="Miscellaneous/PlasorGraph.png"  alt="Dataset chart" width="600">
 </center>
 
-Each plastic object had approximately 4 pictures taken, in different positions, and state(they were being gradually crumpled). It's worth noting that classes PET and PP consist of about 100 objects, and the rest are represented with approximately 25 waste pieces per class. 
+Each plastic object had approximately 4 pictures taken, in different positions, and state(they were being gradually crumpled). It's worth noting that classes *PET* and *PP* consist of about 100 objects, and the rest are represented with approximately 25 waste pieces per class. 
 
 
 ## SVM
@@ -68,21 +68,21 @@ Main SVM script is [here](./SVM/SVM.m).
 Using an unmodified Plasor dataset, the confusion matrix for SVM is:\
 <img src="Miscellaneous/Results/SVM_basic.png"  alt="SVM basic" >
 
-The LDPE and HDPE classes are the two least abundant, but best recognised. The accuracy with these types can be attributed to the fact that they are the most "homogeneous" classes in which objects have similar characteristics. Additionally, when the SVM performs an incorrect classification, it mostly selects these two types. Waste type
-PET is particularly confused as HDPE. This is consistent in that among them there are several non-transparent bottles. Other and PP are confused with LDPE. It is worth to point out that these 3 classes share the possession of film packaging. \
+The *LDPE* and *HDPE* classes are the two least abundant, but best recognised. The accuracy with these types can be attributed to the fact that they are the most "homogeneous" classes in which objects have similar characteristics. Additionally, when the SVM performs an incorrect classification, it mostly selects these two types. Waste type
+*PET* is particularly confused as *HDPE*. This is consistent in that among them there are several non-transparent bottles. *Other* and *PP* are confused with *LDPE*. It is worth to point out that these 3 classes share the possession of film packaging. \
 To sum up, I concluded that uniformity, how objects are similar to each other within a class, determines the accuracy of recognition.
 
 
 ### Class optimisation
-In various experiments, the most problematic classes were PP, Other, PS, and also PET caused some problems. This may be due to how diverse these groups are. 
-Therefore, I decided to try to combine PP, Other, PS, and part of PET into a new class. From PET I subjectively selected 17 waste, deviating from the shape of the bottle. 
-All these images were combined into a new class: Misc, from *Miscellaneous*. The remaining PET was renamed to PETb, from *PET bottles*. \
-When implementing such a system in a robotic application, the Misc class waste could be ignored and further passed through a conveyor belt.
+In various experiments, the most problematic classes were *PP*, *Other*, *PS*, and also *PET* caused some problems. This may be due to how diverse these groups are. 
+Therefore, I decided to try to combine *PP*, *Other*, *PS*, and part of *PET* into a new class. From *PET* I subjectively selected 17 waste, deviating from the shape of the bottle. 
+All these images were combined into a new class: *Misc*, from *Miscellaneous*. The remaining *PET* was renamed to *PETb*, from **PET* bottles*. \
+When implementing such a system in a robotic application, the *Misc* class waste could be ignored and further passed through a conveyor belt.
 
 Results after this attempt at class optimisation: \
 <img src="Miscellaneous/Results/SVM_Opti.png"  alt="SVM opti">
 
-The classifier recognises the HDPE, LDPE classes a few per cent better, while the efficiency for the PETb group increased by 14%. The accuracy at the Misc type is similar to the arithmetic mean accuracy from the separate PP, PS, Other classes. The slight improvement may be because the classifier avoids mistakes between these classes. However, still, every third picture is mistaken for LDPE and one in five for HDPE. Also, despite defining PETb as a "bottle class", there are objects in it misclassified as LDPE, or Misc. 
+The classifier recognises the *HDPE*, *LDPE* classes a few per cent better, while the efficiency for the *PETb* group increased by 14%. The accuracy at the *Misc* type is similar to the arithmetic mean accuracy from the separate *PP*, *PS*, *Other* classes. The slight improvement may be because the classifier avoids mistakes between these classes. However, still, every third picture is mistaken for *LDPE* and one in five for *HDPE*. Also, despite defining *PETb* as a "bottle class", there are objects in it misclassified as *LDPE*, or *Misc*. 
 In summary, the redefinition, simplification, of classes has only helped a little in effective sorting.
 
 ## CNN
@@ -107,37 +107,37 @@ Like with SVM, 10-fold stratified cross-validation was used. Due to practical co
 Using `ImageDataGenerator`, training images were randomly rotated within a 180-degree range, flipped vertically or horizontally, and subjected to a shear transformation for up to 15 degrees. The validation images were not processed. 
 
 ### Basic experiment
-On the basic Plasor dataset, the average accuracy across folds was 73 %. Accuracy, loss and confusion matrix for an example fold:
+On the basic Plasor dataset, the average accuracy across folds was 73%. Accuracy, loss and confusion matrix for an example fold:
 <img src="Miscellaneous/CNN/fold3_Acc.png"  alt="CNN basic acc"  width="450">
 <img src="Miscellaneous/CNN/fold3_Loss.png"  alt="CNN basic loss"  width="450">
 <img src="Miscellaneous/Results/CNN_Basic.png"  alt="CNN basic conf matrix">
 
 The fluctuating values for the validation set may be due to the small number of samples(most classes are represented by about 10 images). It is also likely that some hyperparameters and architecture are not optimised.
 
-In the first experiment, under the same conditions, the CNN performed better than the SVM, in every class except HDPE and PS. However, the confusion of HDPE objects with, the more numerous, PET class is not surprising. The network has learned more examples, is biased towards PET, and these two classes share non-transparent bottles.
-A similar phenomenon occurs between PS and the more numerous PP, which share many similar objects. The worst performing class is Other, confused with LDPE and PP.
+In the first experiment, under the same conditions, the CNN performed better than the SVM, in every class except *HDPE* and *PS*. However, the confusion of *HDPE* objects with, the more numerous, *PET* class is not surprising. The network has learned more examples, is biased towards *PET*, and these two classes share non-transparent bottles.
+A similar phenomenon occurs between *PS* and the more numerous *PP*, which share many similar objects. The worst performing class is *Other*, confused with *LDPE* and *PP*.
 
 
 ### Class optimisation
-In the second experiment, I performed network training on the modified Plasor set. The attempt to optimising classes from SVM was repeated - combining Other, PP, PS and part of PET into Misc class and the rest of PET into PETb. The accuracy improved to 87 %.
+In the second experiment, I performed network training on the modified Plasor set. The attempt to optimising classes from SVM was repeated - combining *Other*, *PP*, *PS* and part of *PET* into *Misc* class and the rest of *PET* into *PETb*. The accuracy improved to 87%.
 <img src="Miscellaneous/CNN/fold0_O_Acc.png"  alt="CNN opti acc"  width="450">
 <img src="Miscellaneous/CNN/fold0_O_Loss.png"  alt="CNN opti loss"  width="450">
 <img src="Miscellaneous/Results/CNN_Opti.png"  alt="CNN opti" >
 
-The class optimisation proposal resulted in an approximately 15 % improvement in classification accuracy. The resulting graphs were smoother in shape than in the previous experiment.
+The class optimisation proposal resulted in an approximately 15% improvement in classification accuracy. The resulting graphs were smoother in shape than in the previous experiment.
 
-The recognition of HDPE and LDPE had been most affected by the change. Due to their small numbers, these classes are tested on about nine images. Therefore, misclassification of e.g. only 4 images translates into a 50 % error. \
-PETb, despite being defined as a class of bottles, still has 10 % wrongly considered being Misc. On the other hand, the Misc class achieved an accuracy of 93 %. This shows the effectiveness of such a fusion, at least during the initial stages of the project.
+The recognition of *HDPE* and *LDPE* had been most affected by the change. Due to their small numbers, these classes are tested on about nine images. Therefore, misclassification of e.g. only 4 images translates into a 50% error. \
+*PETb*, despite being defined as a class of bottles, still has 10% wrongly considered being *Misc*. On the other hand, the *Misc* class achieved an accuracy of 93%. This shows the effectiveness of such a fusion, at least during the initial stages of the project.
 
 ### Equalisation and optimisation of classes
-The last experiment was performed on a Plasor dataset with modified classes and equalized number of images per class. Each image from the training set of HDPE, LDPE and PETb classes was duplicated 6, 7 and 1 time respectively. The images in the validation set were left unchanged. Now, the HDPE, LDPE and Misc classes had approximately 560 images, while PETb had 660. Due to the increased number of images of the same waste shots, the parameters of the classifier model were changed. The Dropout layer factor was set to 0.2 to prevent overfitting. The average accuracy reached 90%.\
+The last experiment was performed on a Plasor dataset with modified classes and equalized number of images per class. Each image from the training set of *HDPE*, *LDPE* and *PETb* classes was duplicated 6, 7 and 1 time respectively. The images in the validation set were left unchanged. Now, the *HDPE*, *LDPE* and *Misc* classes had approximately 560 images, while *PETb* had 660. Due to the increased number of images of the same waste shots, the parameters of the classifier model were changed. The Dropout layer factor was set to 0.2 to prevent overfitting. The average accuracy reached 90%.\
 <img src="Miscellaneous/CNN/fold1_O_Multi_Acc.png"  alt="CNN opti multi acc"  width="450">
 <img src="Miscellaneous/CNN/fold1_O_Multi_Loss.png"  alt="CNN opti multi loss"  width="450">
 <img src="Miscellaneous/Results/CNN_Multi.png"  alt="CNN multi">
 
 In spite of the increase in the Dropout layer parameter, overfitting still increased relative to previous experiments.
 
-Multiplying the data resulted in better accuracy in all classes, apart from a slight deterioration in Misc. These results would still need to be confronted with classifying new objects. However, the method of equalization seems to help with smaller classes.
+Multiplying the data resulted in better accuracy in all classes, apart from a slight deterioration in *Misc*. These results would still need to be confronted with classifying new objects. However, the method of equalization seems to help with smaller classes.
 
 ## Project summary
 Sorting plastic waste is a difficult issue. On one hand objects can be diverse within a single type, and on the other there are similarities between classes. Each algorithm, with different parameters, performs better or worse, under given conditions.
