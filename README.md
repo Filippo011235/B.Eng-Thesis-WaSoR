@@ -1,5 +1,5 @@
 # B.Eng-Thesis-WaSoR
-My engineering thesis project - A system for visual sorting plastic waste. I had used 2 machine learning algorithms to recognize between different types of plastic waste.
+My thesis project - machine learning classifiers for visual sorting of plastic waste. I created a support vector machine and a convoluted neural network to recognize different types of plastic waste.
 
 ## Table of contents
 * [General info](#general-info)
@@ -11,7 +11,7 @@ My engineering thesis project - A system for visual sorting plastic waste. I had
 * [Contact](#contact)
 
 ## General info
-In recent years, several robotics companies, e.g. [ZenRobotics](https://zenrobotics.com), have developed a new system for waste management - Waste Sorting Robots(hence my abbreviation *WaSoR*). Combining robotic arms, computer vision and machine learning to segregate waste on a conveyor belt. Example of such system:
+In recent years, several robotics companies, e.g. ZenRobotics, have developed a new system for waste management - Waste Sorting Robots(hence my abbreviation WaSoR). Combining robotic arms, computer vision, and machine learning to segregate waste on a conveyor belt. Example of such a system:
 
 <p align="center">
   <img src="Miscellaneous/ZenRobo_system_simplified.png" alt="Full waste sorting Robot" width="600">
@@ -31,7 +31,7 @@ I had used an international classification of:
 * (PVC was excluded, as there weren't enough samples)
 
 
-Researched ML algorithms: 
+Researched ML algorithms, and achieved results: 
 1. Support Vector Machines, with Bag of Features technique - A proven algorithm that achieved an average of 60% accuracy. Particularly effective with simple, uniform, classes.
 2. Convolutional Neural Network with Transfer Learning - A modern approach that experimentally reached 90% accuracy. Challenging, but more promising classifier.
 
@@ -45,7 +45,7 @@ My full thesis, in Polish, is [here](./Thesis%20Final.pdf).
 
 ## Dataset
 My dataset consists of pictures of single pieces of plastic in the middle of a black background. It is a simplified version of real-life waste, moving on a conveyor belt. The idea of such representation comes from the [WaDaBa project](http://wadaba.pcz.pl/#home). \
-After initial experiments, I decided to use only images from the WaDaBa with the "h0" appendix. The rest of the pictures seemed redundant, disrupted results. Apart from that, I expanded the database myself, by taking photographs of my household waste. Combining those 2 sources, I've created a database, which I called Plasor.\
+After initial experiments, I used only images from the WaDaBa with the "h0" appendix. The rest of the pictures seemed redundant and disrupted the results. Apart from that, I expanded the database on my own, by taking photographs of my household waste. Combining those two sources, I've created a new dataset and named it Plasor.\
 [Main dataset directory.](./Dataset_Lean_h0/)\
 Some example images, and the dataset summary on a graph:
 
@@ -58,17 +58,13 @@ Some example images, and the dataset summary on a graph:
   <img src="Miscellaneous/PlasorGraph.png"  alt="Dataset chart" width="600">
 </p>
 
-Each plastic object had approximately 4 pictures taken, in different positions, and state(they were being gradually crumpled). It's worth noting that classes *PET* and *PP* consist of about 100 objects, and the rest are represented with approximately 25 waste pieces per class. 
+Each plastic object had approximately 4 pictures taken, in different positions, and states(they were being gradually crumpled). It's worth noting that classes *PET* and *PP* consist of about 100 objects, and the rest are represented with approximately 25 waste pieces per class. 
 
 
 ## SVM
-I started with the classical machine learning approach. Following the projects of [M. Yang and G. Thung](http://cs229.stanford.edu/proj2016/report/ThungYang-ClassificationOfTrashForRecyclabilityStatus-report.pdf), and [Sakr et. al.](https://ieeexplore.ieee.org/document/7777453), I had researched the Support Vector Machine algorithm, with the Bag of Features technique. In addition, 10-fold stratified cross-validation was applied, to compensate for uneven classes. No data augmentation was applied.
-The algorithm had been implemented in Matlab(the Computer Vision Toolbox is required). \
-Main SVM script is [here](./SVM/SVM.m).
-
-<!-- In a nutshell, bag of features learns K points(usually 500) from the training set images  -->
-
-<!-- ## Very first exp -->
+I started with the classical machine learning approach, following the projects of [M. Yang and G. Thung](http://cs229.stanford.edu/proj2016/report/ThungYang-ClassificationOfTrashForRecyclabilityStatus-report.pdf), and [Sakr et. al.](https://ieeexplore.ieee.org/document/7777453), I had researched the Support Vector Machine algorithm, with the Bag of Features technique. In addition, 10-fold stratified cross-validation was applied, to compensate for uneven classes. No data augmentation was used.
+The algorithm had been implemented in Matlab (the Computer Vision Toolbox is required). \
+The main SVM script is [here](./SVM/SVM.m).
 
 ### Basic result
 Using an unmodified Plasor dataset, the confusion matrix for SVM is:
@@ -77,27 +73,25 @@ Using an unmodified Plasor dataset, the confusion matrix for SVM is:
 </p>
 
 
-
-The *LDPE* and *HDPE* classes are the two least abundant, but best recognised. The accuracy with these types can be attributed to the fact that they are the most "homogeneous" classes in which objects have similar characteristics. Additionally, when the SVM performs an incorrect classification, it mostly selects these two types. Waste type
-*PET* is particularly confused as *HDPE*. This is consistent in that among them there are several non-transparent bottles. *Other* and *PP* are confused with *LDPE*. It is worth to point out that these 3 classes share the possession of film packaging. \
-To sum up, I concluded that uniformity, how objects are similar to each other within a class, determines the accuracy of recognition.
+The *LDPE* and *HDPE* classes have the least samples but are best recognized. Those good results can be attributed to the fact that they are the most "homogeneous" classes in which objects have similar characteristics. Additionally, when the SVM performs an incorrect classification, it mostly selects these two types. Waste type
+*PET* is particularly confused as *HDPE*, probably because there are several non-transparent bottles in both classes. *Other* and *PP* are confused with *LDPE*. It is worth pointing out that these three classes share the possession of film packaging. \
+\
+To sum up, I concluded that uniformity, how objects are similar within a class, determines the accuracy of recognition.
 
 
 ### Class optimisation
 In various experiments, the most problematic classes were *PP*, *Other*, *PS*, and also *PET* caused some problems. This may be due to how diverse these groups are. 
 Therefore, I decided to try to combine *PP*, *Other*, *PS*, and part of *PET* into a new class. From *PET* I subjectively selected 17 waste, deviating from the shape of the bottle. 
-All these images were combined into a new class: *Misc*, from *Miscellaneous*. The remaining *PET* was renamed to *PETb*, from **PET* bottles*. \
-When implementing such a system in a robotic application, the *Misc* class waste could be ignored and further passed through a conveyor belt.
+All these images were combined into a new class: *Misc*, from *Miscellaneous*. The remaining *PET* was renamed *PETb*, from **PET* bottles*. \
+When implementing such a system in a robotic application, the *Misc* class waste could be ignored and passed through a conveyor belt.
 
-Results after this attempt at class optimisation: 
+Results after this attempt at class optimization: 
 <p align="center">
   <img src="Miscellaneous/Results/SVM_Opti.png"  alt="SVM opti">
 </p>
 
-
-
-The classifier recognises the *HDPE*, *LDPE* classes a few per cent better, while the efficiency for the *PETb* group increased by 14%. The accuracy at the *Misc* type is similar to the arithmetic mean accuracy from the separate *PP*, *PS*, *Other* classes. The slight improvement may be because the classifier avoids mistakes between these classes. However, still, every third picture is mistaken for *LDPE* and one in five for *HDPE*. Also, despite defining *PETb* as a "bottle class", there are objects in it misclassified as *LDPE*, or *Misc*. 
-In summary, the redefinition, simplification, of classes has only helped a little in effective sorting.
+The classifier recognizes the *HDPE* and *LDPE* classes a few percent better, while the efficiency for the *PETb* group increased by 14%. The accuracy at the *Misc* type is similar to the arithmetic mean accuracy from the separate *PP*, *PS*, *Other* classes. The slight improvement may be because the classifier avoids mistakes between these classes. However, every third picture is still mistaken for *LDPE* and one in five for *HDPE*. Also, despite defining *PETb* as a "bottle class", there are objects in it misclassified as *LDPE* or *Misc*. \
+In summary, changing the definition and composition of classes was only a minor improvement in correct sorting.
 
 ## CNN
 Due to the small size of the dataset, for deep learning, I used the transfer learning approach, based on the work of [Xu et. al.](https://www.preprints.org/manuscript/202002.0327/v1) and especially [Bircanoğlu et. al.](https://www.researchgate.net/publication/325626219_RecycleNet_Intelligent_Waste_Sorting_Using_Deep_Neural_Networks).
@@ -125,10 +119,9 @@ Using `ImageDataGenerator`, training images were randomly rotated within a 180-d
 
 ### Basic experiment
 On the basic Plasor dataset, the average accuracy across folds was 73%. Accuracy, loss and confusion matrix for an example fold:
-<img src="Miscellaneous/CNN/fold3_Acc.png"  alt="CNN basic acc"  width="450">
-<img src="Miscellaneous/CNN/fold3_Loss.png"  alt="CNN basic loss"  width="450">
-
 <p align="center">
+  <img src="Miscellaneous/CNN/fold3_Acc.png"  alt="CNN basic acc"  width="450">
+  <img src="Miscellaneous/CNN/fold3_Loss.png"  alt="CNN basic loss"  width="450">
   <img src="Miscellaneous/Results/CNN_Basic.png"  alt="CNN basic conf matrix">
 </p>
 
